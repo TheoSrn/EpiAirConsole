@@ -1,0 +1,582 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EpiAirConsole API",
+    "version": "1.0.0",
+    "description": "API backend pour EpiAirConsole - gestion des utilisateurs et authentification"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Serveur de développement"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "ID unique de l'utilisateur"
+          },
+          "username": {
+            "type": "string",
+            "description": "Nom d'utilisateur"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email unique"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "URL de l'avatar"
+          },
+          "gamesData": {
+            "type": "array",
+            "description": "Données de jeux de l'utilisateur"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date de création"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date de mise à jour"
+          }
+        },
+        "required": ["username", "email"]
+      },
+      "Game": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "imageUrl": { "type": "string", "format": "uri" },
+          "releaseDate": { "type": "string", "format": "date" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "publisher": { "type": "string" },
+          "active": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["name"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nom d'utilisateur"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Mot de passe"
+          }
+        },
+        "required": ["name", "email", "password"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Mot de passe"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token valide 7 jours"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Message d'erreur"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token (optionnel pour certaines routes)"
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Redirection vers la documentation",
+        "description": "Redirige vers /api-docs (documentation Swagger)",
+        "tags": ["Root"],
+        "responses": {
+          "302": {
+            "description": "Redirection vers /api-docs"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Créer un nouveau compte utilisateur",
+        "description": "Enregistre un nouvel utilisateur avec email, username et password. Le password est hashé avec bcrypt.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "name": "johndoe",
+                    "email": "john@example.com",
+                    "password": "SecurePassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé avec succès (sans password en réponse)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erreur : champs manquants ou email déjà utilisé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Connexion utilisateur",
+        "description": "Authentifie l'utilisateur et retourne un JWT valide 7 jours",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "email": "john@example.com",
+                    "password": "SecurePassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie, retourne le token JWT et l'utilisateur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email ou mot de passe invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/": {
+      "get": {
+        "summary": "Lister tous les utilisateurs",
+        "description": "Retourne la liste complète des utilisateurs (sans mots de passe)",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "Liste des utilisateurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Récupérer un utilisateur par ID",
+        "description": "Récupère les détails d'un utilisateur spécifique (sans mot de passe)",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID MongoDB de l'utilisateur",
+            "example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Utilisateur trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utilisateur non trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Mettre à jour un utilisateur",
+        "description": "Mise à jour des données d'un utilisateur. Si password est fourni, il sera hashé automatiquement.",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID MongoDB de l'utilisateur",
+            "example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Nouveau nom d'utilisateur"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Nouvel email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Nouveau mot de passe (sera hashé)"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "description": "Nouvelle URL avatar"
+                  },
+                  "gamesData": {
+                    "type": "array",
+                    "description": "Nouvelles données de jeux"
+                  }
+                }
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "username": "johndoe_updated",
+                    "avatar": "https://example.com/avatar.jpg"
+                  }
+                },
+                "example2": {
+                  "value": {
+                    "password": "NewSecurePassword456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Utilisateur mis à jour avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utilisateur non trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+      ,
+      "delete": {
+        "summary": "Supprimer un utilisateur",
+        "description": "Supprime un utilisateur par ID",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID MongoDB de l'utilisateur",
+            "example": "507f1f77bcf86cd799439011"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Utilisateur supprimé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utilisateur non trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    ,
+    "/api/games": {
+      "post": {
+        "summary": "Créer un jeu",
+        "description": "Crée un nouveau jeu; accepte `multipart/form-data` pour upload d'image (champ `image`) ou `application/json` avec `imageUrl`.",
+        "tags": ["Games"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "image": { "type": "string", "format": "binary" },
+                  "releaseDate": { "type": "string", "format": "date" },
+                  "tags": { "oneOf": [{ "type": "string", "description": "Comma-separated tags (ex: 'action,arcade')" }, { "type": "array", "items": { "type": "string" }, "description": "Multiple tags via repeated fields (use `tags[]`)" }] },
+                  "publisher": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            },
+            "application/json": { "schema": { "$ref": "#/components/schemas/Game" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Jeu créé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Game" } } } },
+          "400": { "description": "Requête invalide", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "500": { "description": "Erreur serveur", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "get": {
+        "summary": "Lister les jeux",
+        "description": "Retourne la liste des jeux (pagination, filtre par tag, recherche)",
+        "tags": ["Games"],
+        "parameters": [
+          { "name": "tag", "in": "query", "schema": { "type": "string" }, "description": "Filtrer par tag" },
+          { "name": "q", "in": "query", "schema": { "type": "string" }, "description": "Recherche par nom/description" }
+        ],
+        "responses": {
+          "200": { "description": "Liste des jeux", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Game" } } } } },
+          "500": { "description": "Erreur serveur", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/games/{id}": {
+      "get": {
+        "summary": "Récupérer un jeu",
+        "tags": ["Games"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Jeu", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Game" } } } }, "404": { "description": "Non trouvé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }, "500": { "description": "Erreur serveur", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+      },
+      "put": {
+        "summary": "Mettre à jour un jeu",
+        "tags": ["Games"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "image": { "type": "string", "format": "binary" },
+                  "releaseDate": { "type": "string", "format": "date" },
+                  "tags": { "type": "string" },
+                  "publisher": { "type": "string" }
+                }
+              }
+            },
+            "application/json": { "schema": { "$ref": "#/components/schemas/Game" } }
+          }
+        },
+        "responses": { "200": { "description": "Jeu mis à jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Game" } } } }, "404": { "description": "Non trouvé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }, "500": { "description": "Erreur serveur", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+      },
+      "delete": {
+        "summary": "Supprimer un jeu",
+        "tags": ["Games"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Jeu supprimé", "content": { "application/json": { "schema": { "type": "object", "properties": { "message": { "type": "string" } } } } } }, "404": { "description": "Non trouvé", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }, "500": { "description": "Erreur serveur", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+      }
+    }
+  }
+}

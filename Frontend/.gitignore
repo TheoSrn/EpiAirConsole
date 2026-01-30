@@ -1,0 +1,69 @@
+# Dependencies
+/node_modules/
+
+# Next.js build output
+/.next/
+/out/
+/.vercel/
+/.vercel/*
+
+# Production build and temporary folders
+/dist/
+/build/
+/.cache/
+/.parcel-cache/
+/.turbo/
+/.serverless/
+/.output/
+
+# Local env files (do NOT commit secrets)
+.env.local
+.env.*.local
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Test coverage
+/coverage/
+.nyc_output/
+
+# Misc caches
+.next/cache/
+.eslintcache
+
+# Optional: lockfiles (keep them committed normally)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Ignore build-time generated types (if any)
+# .next/ (already ignored above)
+
+# Ignore Storybook build files
+/storybook-static/
+
+# Vite / other tool caches
+/node_modules/.vite/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Ignore secrets file
+secrets.*

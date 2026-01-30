@@ -1,0 +1,19 @@
+{
+  "profiles": [
+    {
+      "id": 1,
+      "username" : "username_1",
+      "games-played" : 0
+    },
+    {
+      "id": 2,
+      "username" : "username_2",
+      "games-played" : 0
+    },
+    {
+      "id": 3,
+      "username" : "user_name_3",
+      "games-played" : 0
+    }
+  ]
+}
