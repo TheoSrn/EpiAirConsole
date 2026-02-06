@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import app from "./app.js";
+import app from "../app.js";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import cors from "cors";
