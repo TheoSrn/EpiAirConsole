@@ -1,3 +1,4 @@
+import express from "express";
 import { createGame, listGames, getGame, updateGame, deleteGame } from "../controllers/gameController.js";
 
 const router = express.Router();
