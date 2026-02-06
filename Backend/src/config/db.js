@@ -1,14 +1,45 @@
-// Connection de Mongo vers le backend
+import http from "http";
+import { Server } from "socket.io";
+import app from "./app.js";
+import dotenv from "dotenv";
+import { connectDB } from "./config/db.js";
+import cors from "cors";
 
-import mongoose from "mongoose";
+dotenv.config();
 
-export async function connectDB() {
-  const uri = process.env.MONGO_URI || "mongodb://localhost:27017/EpiAirConsole";
+const PORT = process.env.PORT || 5000;
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://TON-FRONTEND.vercel.app"
+  ],
+  credentials: true
+}));
+
+const start = async () => {
   try {
-    await mongoose.connect(uri);
-    console.log("MongoDB connecté !");
-  } catch (error) {
-    console.error("Erreur de connexion MongoDB :", error);
-    throw error;
+    if (!process.env.MONGO_URI) {
+      console.warn("MONGO_URI non défini — connexion MongoDB non effectuée");
+    } else {
+      await connectDB();
+    }
+
+    const server = http.createServer(app);
+
+    const io = new Server(server, {
+      cors: {
+        origin: "*"
+      }
+    });
+
+    server.listen(PORT, () =>
+      console.log(`Serveur running on port ${PORT}`)
+    );
+  } catch (err) {
+    console.error("Erreur au démarrage du serveur:", err.message);
+    process.exit(1);
   }
-}
+};
+
+start();
