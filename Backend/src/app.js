@@ -1,7 +1,3 @@
-import express from "express";
-import cors from "cors";
-import path from "path";
-import fs from "fs";
 import swaggerUi from "swagger-ui-express";
 import multer from "multer";
 import authRoutes from "./routes/auth.js";
