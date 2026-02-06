@@ -28,7 +28,7 @@ export default function Landing() {
   useEffect(() => {
     async function fetchGames() {
       try {
-        const res = await fetch('http://localhost:5000/api/games');
+        const res = await fetch('${process.env.NEXT_PUBLIC_API_URL}/api/games');
         if (res.ok) {
           const data = await res.json();
           console.log('Raw games data:', data);
@@ -130,9 +130,9 @@ export default function Landing() {
                   }
                   if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
                     if (imageUrl.startsWith('/')) {
-                      imageUrl = `http://localhost:5000${imageUrl}`;
+                      imageUrl = `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
                     } else {
-                      imageUrl = `http://localhost:5000/uploads/games/${imageUrl}`;
+                      imageUrl = `${process.env.NEXT_PUBLIC_API_URL}/uploads/games/${imageUrl}`;
                     }
                   }
                   if (index === 0) {

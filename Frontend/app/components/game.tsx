@@ -30,7 +30,7 @@ export default function GamesPage() {
   useEffect(() => {
     async function fetchGames() {
       try {
-        const res = await fetch('http://localhost:5000/api/games');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/games`);
         if (res.ok) {
           const data = await res.json();
           setGames(data);
@@ -56,9 +56,9 @@ export default function GamesPage() {
       return imageUrl;
     }
     if (imageUrl.startsWith('/')) {
-      return `http://localhost:5000${imageUrl}`;
+      return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
     }
-    return `http://localhost:5000/uploads/games/${imageUrl}`;
+    return `${process.env.NEXT_PUBLIC_API_URL}/uploads/games/${imageUrl}`;
   };
 
   // Récupérer tous les tags uniques
