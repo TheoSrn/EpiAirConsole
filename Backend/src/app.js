@@ -6,7 +6,6 @@ import swaggerUi from "swagger-ui-express";
 import multer from "multer";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
-// import gamesRoutes from "./routes/games.js";
 
 const app = express();
 
@@ -22,7 +21,7 @@ app.use(cors({
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-// app.use("/api/games", gamesRoutes);
+app.use("/api/games", gamesRoutes);
 
 const swaggerPath = path.resolve(process.cwd(), "src", "swagger", "swagger.json");
 let swaggerDocument = {
