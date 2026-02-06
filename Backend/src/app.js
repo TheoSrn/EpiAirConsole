@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import multer from "multer";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import gamesRoutes from "./routes/games.js";
 
 const app = express();
 

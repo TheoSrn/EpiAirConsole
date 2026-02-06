@@ -1,7 +1,3 @@
-import express from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 import { createGame, listGames, getGame, updateGame, deleteGame } from "../controllers/gameController.js";
 
 const router = express.Router();
