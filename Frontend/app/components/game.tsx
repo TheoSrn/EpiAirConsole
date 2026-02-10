@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import './games.css';
 import PlayPage from './play';
+import { buildApiUrl, resolveImageUrl } from '../utils/api';
 
 type Game = {
   _id: string;
@@ -30,7 +31,7 @@ export default function GamesPage() {
   useEffect(() => {
     async function fetchGames() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/games`);
+        const res = await fetch(buildApiUrl('/api/games'));
         if (res.ok) {
           const data = await res.json();
           setGames(data);
@@ -46,20 +47,6 @@ export default function GamesPage() {
     }
     fetchGames();
   }, []);
-
-  // Normaliser l'URL de l'image
-  const normalizeImageUrl = (imageUrl?: string): string => {
-    if (!imageUrl || imageUrl.trim() === '') {
-      return '';
-    }
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
-    if (imageUrl.startsWith('/')) {
-      return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
-    }
-    return `${process.env.NEXT_PUBLIC_API_URL}/uploads/games/${imageUrl}`;
-  };
 
   // Récupérer tous les tags uniques
   const allTags = Array.from(
@@ -173,7 +160,7 @@ export default function GamesPage() {
       ) : (
         <div className="games-grid">
           {filteredGames.map((game) => {
-            const imageUrl = normalizeImageUrl(game.imageUrl);
+            const imageUrl = resolveImageUrl(game.imageUrl);
             return (
               <div key={game._id} className="game-card" onClick={() => setSelectedGame(game)}>
                 {imageUrl ? (

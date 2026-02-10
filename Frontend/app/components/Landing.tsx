@@ -5,6 +5,7 @@ import styles from './Landing.module.css';
 import { useState, useEffect } from 'react';
 import type { MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { buildApiUrl, resolveImageUrl } from '../utils/api';
 
 type Game = {
   _id: string;
@@ -28,7 +29,7 @@ export default function Landing() {
   useEffect(() => {
     async function fetchGames() {
       try {
-        const res = await fetch('${process.env.NEXT_PUBLIC_API_URL}/api/games');
+        const res = await fetch(buildApiUrl('/api/games'));
         if (res.ok) {
           const data = await res.json();
           console.log('Raw games data:', data);
@@ -128,13 +129,7 @@ export default function Landing() {
                   if (!imageUrl || imageUrl.trim() === '') {
                     return null;
                   }
-                  if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-                    if (imageUrl.startsWith('/')) {
-                      imageUrl = `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
-                    } else {
-                      imageUrl = `${process.env.NEXT_PUBLIC_API_URL}/uploads/games/${imageUrl}`;
-                    }
-                  }
+                  imageUrl = resolveImageUrl(imageUrl);
                   if (index === 0) {
                     console.log('First game image debug:', {
                       original: originalUrl,

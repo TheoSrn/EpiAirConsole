@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import '../auth/login.css';
+import { buildApiUrl } from '../utils/api';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -24,7 +25,7 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+      const res = await fetch(buildApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),

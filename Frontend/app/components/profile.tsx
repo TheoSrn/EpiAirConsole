@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import '../profile/profile.css';
+import { buildApiUrl } from '../utils/api';
 
 type User = {
   _id?: string;
@@ -70,7 +71,7 @@ export default function ProfilePage() {
         throw new Error('Non authentifié');
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${user._id}`, {
+      const res = await fetch(buildApiUrl(`/api/users/${user._id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
